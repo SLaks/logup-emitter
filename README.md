@@ -69,7 +69,7 @@ These methods must always be passed a string, and can optionally be passed an ob
 
 Logger objects also have a general `log()` method, which takes a level parameter (string or index), followed by the same parameters as the specific log methods.
 
-If your code uses a different set of levels, you can call `logger.mapLevels({ myWarnLevel: "warn" })` to create a new logger instance that wraps the original one and converts `myWarnLevel` logs to `warn`.  Any levels not mapped in the object will remain as-is, so this call would return an object with `info()` and `myWarnLevel()` methods, but not `warn()`.  Multiple names can be mapped to the same level.  If `log` is specified, the returned object will not have the general-purpose `log()` method; otherwise, the `log()` method will only respect the new parameter names.  
+If your code uses a different set of levels, you can call `logger.mapLevels({ myWarnLevel: "warn" })` to create a new logger instance that wraps the original one and converts `myWarnLevel` logs to `warn`.  Any levels not mapped in the object will not be exposed in the returned object.  Multiple names can be mapped to the same level.  If `log` is specified, the returned object will not have the general-purpose `log()` method; otherwise, the `log()` method will only respect the new parameter names.  
 This is particularly useful when adapting older code to use LogUp. (see [below](#compatibility))
 
 ###Context
@@ -128,4 +128,4 @@ If a hub receives a connection from a _newer_ emitter, the hub will immediately 
 There will also be a separate logup-interceptor package.  This can be used by a library to create a hub that catches log messages from packages below the library in the module tree.  
 The interceptor will allow messages to be filtered or modified, and it will then forward them up the module tree to an application-level hub, if present.  
 The interceptor module will not care about the protocol version (although filter / modification callbacks probably will).  
-If there is no upstream hub for the interceptor to connect to, it will do nothing at all (and will not install itself in the module, so that downstream emitters will still fallback).
+If there is no upstream hub for the interceptor to connect to, it will do nothing at all (and by default will not install itself in the module, so that downstream emitters will still fallback).
