@@ -1,6 +1,7 @@
 {
   "name": "logup-emitter",
   "version": "0.0.0",
+  "protocolVersion": "0.0.1",
   "description": "A lightweight log emitter used by library packages to emit log entries to an optional logup-hub in the host application.",
   "homepage": "https://github.com/SLaks/logup-emitter",
   "author": "Schabse Laks <Dev@SLaks.net> (http://slaks.net)",
@@ -15,5 +16,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "semver": "~1.1.4",
+    "pkginfo": "~0.3.0"
   }
 }
