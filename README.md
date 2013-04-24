@@ -5,12 +5,21 @@ _One logger to rule them all_
 
 This package emits log messages to a [logup-hub](https://github.com/SLaks/logup-hub) running in the same process.  If there is no logup-hub, messages (info or higher) are printed to the console.
 
+```sh
+npm install logup-emitter --save
+```
+```js
+// Your reusable npm package
+var logger = require('logup-emitter').createLogger(module);
+logger.warn("Uh-oh!", { retriesLeft: 4, error: new Error("Connection timed out!") });
+```
+
+
 #About LogUp
 
-logup is a powerful logging system that decouples logging from configuration.  Library packages use logup-emitter to write their logs, without needing to know where the log output is sent.  Applications can then use logup-hub to configure the log output and decides what gets sent where.
+logup is a simple yet powerful logging system that decouples logging from configuration.  Library packages use logup-emitter to write their logs, without needing to know where the log output is sent.  Applications can then use logup-hub to configure the log output and decides what gets sent where.
 
-#How to get started
-LogUp is very simple to use.  How to use it depends on what you're doing:
+LogUp is very easy to use.  How to use it depends on what you're doing:
 
 ##For libraries
 If you're writing a reusable package (something that will be invoked by other code using `require()`; not a command-line application), you only need the emitter.  
@@ -44,7 +53,7 @@ Then,
 
     npm install logup-hub --save
 
-Finally, add some configuration.  See the [LogUp Hub documentation](https://github.com/SLaks/logup-hub) for more information.
+Finally, add some configuration.  See the [LogUp Hub documentation](https://github.com/SLaks/logup-hub#readme) for more information.
 #Usage
 logup-emitter allows code to create logger objects that forward to the active hub.  
 Each logger object knows which npm package it's used by, and ideally which file.  
