@@ -53,7 +53,7 @@ Thus, you should not expose loggers across files; instead, each file should crea
 ##Creating loggers
 To create a standard logger, call `require('logup-emitter').createLogger(module)`.  `module` is Node's [standard `module` object](http://nodejs.org/api/modules.html#modules_the_module_object); LogUp uses it to find the filename and npm package creating the logger, and to crawl the module tree looking for a hub.  (see below)
 
-To create a logger for a package you don't control, call `createSubpackageLogger(module, "package name")`.  This call will call `yourModule.require(packageName + "/package.json")` to find the package that the logger is for, and will again use your `module` to crawl up and find a hub.  `"package name"` must be the same string you pass to `require()` to load the package that you're creating the module for.  These loggers do not record the source filename. 
+To create a logger for a package that you depend on, but don't control, call `createSubpackageLogger(module, "dependency name")`.  This call will call `yourModule.require(packageName + "/package.json")` to find the package that the logger is for, and will again use your `module` to crawl up and find a hub.  `"package name"` must be the same string you pass to `require()` to load the package that you're creating the module for.  These loggers do not record the source filename.  
 
 ##Logger objects
 LogUp uses the following log levels:
