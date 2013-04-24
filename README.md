@@ -119,7 +119,23 @@ It would be possible for the debug library to add support for forwarding message
 #How it works
 When a logger is created, it will walk the calling `module`'s [`parent` tree](http://nodejs.org/api/modules.html#modules_module_parent) until it finds a module that has a LogUp hub.  If it finds a hub, it will attach itself to the hub, and all log messages will be emitted on the hub, together with the originating logger object (for source information).  
 
-If an emitter does not find any hub, it will fall back to writing `info` or higher messages to the console.  This allows LogUp-using libraries to be used without setting up an emitter.
+If an emitter does not find a hub, it will wait for the next tick, then look again.  This prevents the following scenario:
+
+```js
+// application.js
+var mongo = require('mongodb');		// Creates a logup-emitter
+var hub = require('logup-hub');
+hub.transports.add(mongo);			// Syntax & API TBD
+hub.install(module);
+```
+
+Since the mongodb module creates LogUp emitters before the hub is installed, they won't find any hub.  However, once the next tick happens, the hub will have been installed.  
+As long as all hubs are created in top-level source (and not inside callbacks), this will always work.
+
+If it does not find any hub at the next tick either, it will fall back to writing `info` or higher messages to the console.  This allows LogUp-using libraries to be used without setting up an emitter.
+
+Any log messages emitted before it finds a hub (if it doesn't find one immediately) will be queued until a hub is found in the next tick, then emitted to the hub.  The timestamps are computed when `log()` is called, so message timestamps are not affected by this behavior.  
+In case the process exits during the first tick, an `exit` handler is used to drain the queued messages.
 
 The protocol used to communicate between emitters and hubs will be documented and versioned using semver.  When a breaking change is introduced, the newer hub will have an adapter to convert messages from older emitters to the new format.  This way, older packages with fixed dependencies on older versions of the emitter will always be usable without problems (although they won't get new emitter-side features).  
 
