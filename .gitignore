@@ -1,3 +1,4 @@
+
 # Used for Visual Studio IntelliSense
 Scripts/
 
@@ -14,7 +15,8 @@ pids
 logs
 results
 
-node_modules
+# Don't exlcude fake node_modules in test/fixtures
+/node_modules
 npm-debug.log
 
 .DS_Store
