@@ -15,8 +15,15 @@
     "url": "git://github.com/SLaks/logup-emitter.git"
   },
   "license": "MIT",
+  "scripts": {
+    "test": "mocha"
+  },
   "dependencies": {
     "semver": "~1.1.4",
     "pkginfo": "~0.3.0"
+  },
+  "devDependencies": {
+    "mocha": "~1.9.0",
+    "expect.js": "~0.2.0"
   }
 }
