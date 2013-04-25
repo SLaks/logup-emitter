@@ -1,4 +1,3 @@
-[![build status](https://secure.travis-ci.org/SLaks/logup-emitter.png)](http://travis-ci.org/SLaks/logup-emitter)
 
 #LogUp Emitter
 _One logger to rule them all_
@@ -14,6 +13,8 @@ var logger = require('logup-emitter').createLogger(module);
 logger.warn("Uh-oh!", { retriesLeft: 4, error: new Error("Connection timed out!") });
 ```
 
+[![build status](https://secure.travis-ci.org/SLaks/logup-emitter.png)](http://travis-ci.org/SLaks/logup-emitter)
+[![browser support](https://ci.testling.com/SLaks/logup-emitter.png)](https://ci.testling.com/SLaks/logup-emitter)
 
 #About LogUp
 
