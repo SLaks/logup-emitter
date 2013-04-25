@@ -13,7 +13,7 @@ var levels = require('../..').levels;
 var CollectingHub = module.exports = function CollectingHub(minLevel) {
 	this.minLevel = levels.values[minLevel];
 	this.messages = {};
-	this.attachedEmitters = []
+	this.attachedEmitters = [];
 	for (var i = 0; i < levels.names.length; i++) {
 		this.messages[levels.names[i]] = [];
 	}
@@ -25,7 +25,7 @@ var CollectingHub = module.exports = function CollectingHub(minLevel) {
 CollectingHub.prototype.install = function (module) {
 	this.module = module;
 	module['logup-hub'] = this;
-}
+};
 /**
  * Uninstalls this hub from the module it was installed on.
  */
@@ -34,7 +34,7 @@ CollectingHub.prototype.uninstall = function () {
 		throw new Error("Not installed");
 	delete this.module['logup-hub'];
 	delete this.module;
-}
+};
 
 /**
  * Attaches a log emitter to this hub.
