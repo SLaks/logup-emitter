@@ -22,11 +22,12 @@
     "browsers": [
       "ie/7..latest",
       "ff/15..latest",
-      "chrome/10..latest",
+      "chrome/5",
+      "chrome/20..latest",
       "safari/4..latest",
       "opera/10..latest",
-      "iphone/4..latest",
-      "android-browser/3..latest"
+      "iphone/6..latest",
+      "android-browser/4.2..latest"
     ],
     "harness": "mocha",
     "files": "test/*.js"
