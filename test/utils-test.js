@@ -23,3 +23,26 @@ describe('util.displayName', function () {
 		expect(util.displayName('\\pack\\views\\lib\\index.coffee')).to.be('views/lib/');
 	});
 });
+
+describe('util.sourceLabel', function () {
+	it('should return the package name and the base filename for non-boring names', function () {
+		expect(util.sourceLabel({
+			packageInfo: { name: "thingy" },
+			filename: '/node_modules/thingy/lib/do-this.js'
+		})).to.be('thingy/do-this.js');
+	});
+
+	it('should skip duplicate package name for ./lib/', function () {
+		expect(util.sourceLabel({
+			packageInfo: { name: "thingy" },
+			filename: '/node_modules/thingy/lib/index.js'
+		})).to.be('thingy/lib/');
+	});
+
+	it('should skip duplicate package name for ./index.js', function () {
+		expect(util.sourceLabel({
+			packageInfo: { name: "thingy" },
+			filename: '/node_modules/thingy/index.js'
+		})).to.be('thingy/index.js');
+	});
+});
