@@ -1,8 +1,7 @@
 /*jshint node: true, camelcase: true, eqeqeq: true, forin: true, immed: true, latedef: true, newcap: true, noarg: true, undef: true, globalstrict: true*/
-/*global describe:false, it:false */
+/*global describe:false, it:false, mocha: false */
 "use strict";
 
-var mocha = require("mocha");
 var expect = require('expect.js');
 
 var util = require('..').util;
