@@ -41,7 +41,7 @@ function getChildLogger() {
 
 describe("Logger", function () {
 	describe("when there is no hub", function () {
-		describe("when the process exists", function () {
+		describe("when the process exits", function () {
 			// All of these tests work by starting a new process
 			// and reading the output after it exits. This can't
 			// be done in browserify.
