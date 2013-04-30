@@ -4,33 +4,7 @@
 
 var expect = require('expect.js');
 
-var CollectingHub = require('./utils/CollectingHub');
-
-var fs = require('fs');
-var exec = require('child_process').exec;
-
-/**
- * Runs the source in the code function in a separate process.
- * This should be called sparingly, since it can't work within
- * browserify.
- */
-function runProcess(code, cb) {
-	if (typeof code !== 'function' || code.length !== 0)
-		throw new Error("code must be a function with no parameters");
-	var source = "(\n" + code.toString() + "\n)();";
-
-	var filename = __dirname + "/runProcess-temp-" + process.pid + "-" + (runProcess.counter = (runProcess.counter || 0) + 1) + ".js";
-	fs.writeFile(filename, source, "utf8", function (err) {
-		if (err) {
-			fs.unlink(filename);
-			return cb(err);
-		}
-		exec('node "' + filename + '"', function () {
-			fs.unlink(filename);
-			cb.apply(this, arguments);
-		});
-	});
-}
+var testUtils = require('./utils');
 
 /**
  * Creates a new logger on a module loaded by the current module.
@@ -48,7 +22,7 @@ describe("Logger", function () {
 			if (process.browser) return;
 			describe("when the entire process is synchronous", function () {
 				it("should write logged messages to stderr on exit", function (done) {
-					runProcess(
+					testUtils.runProcess(
 						function () {
 							var logger = require('..').createLogger(module);
 							logger.info("Line 1");
@@ -64,7 +38,7 @@ describe("Logger", function () {
 					);
 				});
 				it("should not emit trace logs", function (done) {
-					runProcess(
+					testUtils.runProcess(
 						function () {
 							var logger = require('..').createLogger(module);
 							logger.trace("You shouldn't see me!");
@@ -82,7 +56,7 @@ describe("Logger", function () {
 						return Date.parse(/^warn ([\d\-TZ.:]+) /.exec(line)[1]);
 					}
 
-					runProcess(
+					testUtils.runProcess(
 						function () {
 							var logger = require('..').createLogger(module);
 							logger.warn("Early message");
@@ -106,7 +80,7 @@ describe("Logger", function () {
 			});
 			describe("when another tick occurs", function () {
 				it("should write logged messages to stderr after nextTick", function (done) {
-					runProcess(
+					testUtils.runProcess(
 						function () {
 							var logger = require('..').createLogger(module);
 							logger.info("Line 1");
@@ -131,7 +105,7 @@ describe("Logger", function () {
 			// impossible to test.  https://github.com/joyent/node/issues/3737
 			describe.skip("when the process.exit is called", function () {
 				it("should write logged messages to stderr on exit", function (done) {
-					runProcess(
+					testUtils.runProcess(
 						function () {
 							var logger = require('..').createLogger(module);
 							logger.info("Line 1");
@@ -154,7 +128,7 @@ describe("Logger", function () {
 
 	describe("when a hub is created before the logger", function () {
 		it("should write all logs to the emitter", function () {
-			var hub = new CollectingHub('info');
+			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			var logger = getChildLogger();
 
@@ -167,7 +141,7 @@ describe("Logger", function () {
 			hub.uninstall();
 		});
 		it("should ignore lower-level messages", function () {
-			var hub = new CollectingHub('warn');
+			var hub = new testUtils.CollectingHub('warn');
 			hub.install(module);
 			var logger = getChildLogger();
 
@@ -180,7 +154,7 @@ describe("Logger", function () {
 			hub.uninstall();
 		});
 		it("should preserve relative time gaps", function () {
-			var hub = new CollectingHub('info');
+			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			var logger = getChildLogger();
 
@@ -207,7 +181,7 @@ describe("Logger", function () {
 			logger.info("Hi!");
 			logger.warn("Ouch!");
 
-			var hub = new CollectingHub('info');
+			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			process.nextTick(function () {
 				expect(hub.messages.info[0]).to.have.property('message', 'Hi!');
@@ -223,7 +197,7 @@ describe("Logger", function () {
 			logger.info("Hi!");
 			logger.warn("Ouch!");
 
-			var hub = new CollectingHub('warn');
+			var hub = new testUtils.CollectingHub('warn');
 			hub.install(module);
 			process.nextTick(function () {
 				expect(hub.messages.info).to.be.empty();
@@ -244,7 +218,7 @@ describe("Logger", function () {
 			while (Date.now() === now);	// Wait for time to pass
 			logger.warn("Late message");
 
-			var hub = new CollectingHub('info');
+			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			process.nextTick(function () {
 				expect(hub.messages.warn[0]).to.have.property('message', 'Early message');
