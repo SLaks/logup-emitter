@@ -15,7 +15,7 @@ pids
 logs
 results
 
-# Don't exlcude fake node_modules in test/fixtures
+# Don't exclude fake node_modules in test/fixtures
 /node_modules
 npm-debug.log
 
