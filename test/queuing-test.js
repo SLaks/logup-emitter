@@ -31,7 +31,7 @@ describe("Logger", function () {
 						},
 						function (err, stdout, stderr) {
 							if (err) return done(err);
-							expect(stdout.length).to.be(0);
+							expect(stdout).to.be.empty();
 							expect(stderr.toString()).to.match(/.*Line 2\n.*Line 1\n.*Line 3\n$/);
 							done();
 						}
@@ -45,8 +45,8 @@ describe("Logger", function () {
 						},
 						function (err, stdout, stderr) {
 							if (err) return done(err);
-							expect(stdout.length).to.be(0);
-							expect(stderr.length).to.be(0);
+							expect(stdout).to.be.empty();
+							expect(stderr).to.be.empty();
 							done();
 						}
 					);
@@ -93,7 +93,7 @@ describe("Logger", function () {
 						},
 						function (err, stdout, stderr) {
 							if (err) return done(err);
-							expect(stdout.length).to.be(0);
+							expect(stdout).to.be.empty();
 							expect(stderr.toString()).to.match(/.*Line 2\n.*Line 1\n.*Line 3\n.*Line 4\n.*Line 5\n$/);
 							done();
 						}
@@ -116,7 +116,7 @@ describe("Logger", function () {
 						},
 						function (err, stdout, stderr) {
 							if (err) return done(err);
-							expect(stdout.length).to.be(0);
+							expect(stdout).to.be.empty();
 							expect(stderr.toString()).to.match(/.*Line 2\n.*Line 1\n.*Line 3\n$/);
 							done();
 						}
