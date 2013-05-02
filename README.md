@@ -2,7 +2,7 @@
 #LogUp Emitter
 _One logger to rule them all_
 
-This package emits log messages to a [logup-hub](https://github.com/SLaks/logup-hub) running in the same process.  If there is no logup-hub, messages (info or higher) are printed to the console.
+This package emits log messages to a [logup-hub](https://github.com/SLaks/logup-hub) running in the same process.  If there is no logup-hub, this becomes a no-op.
 
 ```sh
 npm install logup-emitter --save
@@ -60,6 +60,22 @@ logup-emitter allows code to create logger objects that forward to the active hu
 Each logger object knows which npm package it's used by, and ideally which file.  
 Thus, you should not expose loggers across files; instead, each file should create a single logger and use it throughout.
 
+##Configuring
+If there is a logup-hub installed in an upstream module, all log messages will go to the hub, according to its configuration.
+
+If there is no hub, the emitter will look for an environment variable named `LOGUP_DEFAULTS`, which contains a comma-separated list of package names and default log levels.  
+Log output from a package not in this list (or if the environment variable has not been set) will be swallowed.  
+The list can also contain a `*` package, which will match all packages not explicitly configured.
+
+For example:
+
+```
+LOGUP_DEFAULTS=*:info,socket.io:error	# Log only errors from socket.io; log info or higher from everything else
+LOGUP_DEFAULTS=mysql:warn			    # Log warnings or higher from mysql, and nothing else
+```
+
+If a hub is found, this environment variable is ignored.
+
 ##Creating loggers
 To create a standard logger, call `require('logup-emitter').createLogger(module)`.  `module` is Node's [standard `module` object](http://nodejs.org/api/modules.html#modules_the_module_object); LogUp uses it to find the filename and npm package creating the logger, and to crawl the module tree looking for a hub.  (see below)
 
@@ -93,7 +109,7 @@ To add context, call `logger.addContext("key", value)` or `logger.addContext({ k
 #Compatibility
 
 ##For new libraries
-If your library uses logup-emitter, but the application using it does not set up logup-hub, the emitter will print all `info` or higher messages to console.  
+If your library uses logup-emitter, but the application using it does not set up logup-hub, no log messages will be printed, unless overridden by environment variable.  
 Your libraries can be used without knowing anything about LogUp.  When the applications need more control over their logging, they can install logup-hub, add some configuration, and everything will work beautifully.
 
 ##For existing libraries
@@ -142,7 +158,7 @@ hub.install(module);
 Since the mongodb module creates LogUp emitters before the hub is installed, they won't find any hub.  However, once the next tick happens, the hub will have been installed.  
 As long as all hubs are created in top-level source (and not inside callbacks), this will always work.
 
-If it does not find any hub at the next tick either, it will fall back to writing `info` or higher messages to the console.  This allows LogUp-using libraries to be used without setting up an emitter.
+If it does not find any hub at the next tick either, it will fall back to the `LOGUP_DEFAULTS` evironment variable, as described above.  This allows LogUp-using libraries to be used without setting up a hub.
 
 Any log messages emitted before it finds a hub (if it doesn't find one immediately) will be queued until a hub is found in the next tick, then emitted to the hub.  The timestamps are computed when `log()` is called, so message timestamps are not affected by this behavior.  
 In case the process exits during the first tick, an `exit` handler is used to drain the queued messages.

@@ -15,6 +15,7 @@ describe("StubHub", function () {
 	// and reading the output after it exits. This can't
 	// be done in browserify.
 	if (process.browser) return;
+	process.env.LOGUP_DEFAULTS = "*:info";
 	it("should include messages for error instances", function (done) {
 		testUtils.runProcess(
 			function () {
