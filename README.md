@@ -141,6 +141,14 @@ It would be possible for the debug library to add support for forwarding message
 
  - If the library has some other technique, [open an issue](https://github.com/SLaks/logup-emitter/issues/new) and I'll see what I can do.
 
+##Browser support
+LogUp works with Browserify, both v1 and v2.
+
+Current builds of browserify do not support `module.parent` or `module.filename`; I will submit a pull request to add these.  Without these properties, logger sources will be inaccurate.
+
+LogUp and its dependencies use some ES5 features (including `Object.getOwnPropertyDescriptors()` and `[].forEach()`).  To work on older browsers (IE < 9, Safari 4, Opera < 12), you will need to shim these (eg, using [es5-sham](https://github.com/kriskowal/es5-shim)).  LogUp does not include this to avoid polluting globals; it is run in the test suite.
+
+It will be possible to forward LogUp message from a browser to a server-side store using a socket.io endpoint, which I have not yet written.
 
 #How it works
 When a logger is created, it will walk the calling `module`'s [`parent` tree](http://nodejs.org/api/modules.html#modules_module_parent) until it finds a module that has a LogUp hub.  If it finds a hub, it will attach itself to the hub, and all log messages will be emitted on the hub, together with the originating logger object (for source information).  
