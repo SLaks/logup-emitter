@@ -30,8 +30,10 @@ CollectingHub.prototype.install = function (targetModule) {
 		targetModule = global;
 	}
 
-	this.module = targetModule;
+	if ("logup-hub" in targetModule)
+		throw new Error("Module " + targetModule.id + " already has a LogUp hub installed");
 	targetModule['logup-hub'] = this;
+	this.module = targetModule;
 };
 /**
  * Uninstalls this hub from the module it was installed on.
