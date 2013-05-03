@@ -133,10 +133,10 @@ describe("Logger", function () {
 			var logger = getChildLogger();
 
 			logger.info("Hi!");
-			logger.warn("Ouch!");
+			logger.error("Ouch!");
 
 			expect(hub.messages.info[0]).to.have.property('message', 'Hi!');
-			expect(hub.messages.warn[0]).to.have.property('message', 'Ouch!');
+			expect(hub.messages.error[0]).to.have.property('message', 'Ouch!');
 
 			hub.uninstall();
 		});
@@ -146,10 +146,10 @@ describe("Logger", function () {
 			var logger = getChildLogger();
 
 			logger.info("Hi!");
-			logger.warn("Ouch!");
+			logger.error("Ouch!");
 
 			expect(hub.messages.info).to.be.empty();
-			expect(hub.messages.warn[0]).to.have.property('message', 'Ouch!');
+			expect(hub.messages.error[0]).to.have.property('message', 'Ouch!');
 
 			hub.uninstall();
 		});
@@ -158,18 +158,18 @@ describe("Logger", function () {
 			hub.install(module);
 			var logger = getChildLogger();
 
-			logger.warn("Early message");
+			logger.error("Early message");
 			var now = Date.now();
 			while (Date.now() === now);	// Wait for time to pass
 			var middle = Date.now();
 			now = Date.now();
 			while (Date.now() === now);	// Wait for time to pass
-			logger.warn("Late message");
+			logger.error("Late message");
 
-			expect(hub.messages.warn[0]).to.have.property('message', 'Early message');
-			expect(hub.messages.warn[0].timestamp).to.be.below(middle);
-			expect(hub.messages.warn[1]).to.have.property('message', 'Late message');
-			expect(hub.messages.warn[1].timestamp).to.be.above(middle);
+			expect(hub.messages.error[0]).to.have.property('message', 'Early message');
+			expect(hub.messages.error[0].timestamp).to.be.below(middle);
+			expect(hub.messages.error[1]).to.have.property('message', 'Late message');
+			expect(hub.messages.error[1].timestamp).to.be.above(middle);
 
 			hub.uninstall();
 		});
@@ -179,13 +179,13 @@ describe("Logger", function () {
 			var logger = getChildLogger();
 
 			logger.info("Hi!");
-			logger.warn("Ouch!");
+			logger.error("Ouch!");
 
 			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			process.nextTick(function () {
 				expect(hub.messages.info[0]).to.have.property('message', 'Hi!');
-				expect(hub.messages.warn[0]).to.have.property('message', 'Ouch!');
+				expect(hub.messages.error[0]).to.have.property('message', 'Ouch!');
 
 				hub.uninstall();
 				done();
@@ -195,13 +195,13 @@ describe("Logger", function () {
 			var logger = getChildLogger();
 
 			logger.info("Hi!");
-			logger.warn("Ouch!");
+			logger.error("Ouch!");
 
 			var hub = new testUtils.CollectingHub('warn');
 			hub.install(module);
 			process.nextTick(function () {
 				expect(hub.messages.info).to.be.empty();
-				expect(hub.messages.warn[0]).to.have.property('message', 'Ouch!');
+				expect(hub.messages.error[0]).to.have.property('message', 'Ouch!');
 
 				hub.uninstall();
 				done();
@@ -210,21 +210,21 @@ describe("Logger", function () {
 		it("should preserve relative time gaps", function (done) {
 			var logger = getChildLogger();
 
-			logger.warn("Early message");
+			logger.error("Early message");
 			var now = Date.now();
 			while (Date.now() === now);	// Wait for time to pass
 			var middle = Date.now();
 			now = Date.now();
 			while (Date.now() === now);	// Wait for time to pass
-			logger.warn("Late message");
+			logger.error("Late message");
 
 			var hub = new testUtils.CollectingHub('info');
 			hub.install(module);
 			process.nextTick(function () {
-				expect(hub.messages.warn[0]).to.have.property('message', 'Early message');
-				expect(hub.messages.warn[0].timestamp).to.be.below(middle);
-				expect(hub.messages.warn[1]).to.have.property('message', 'Late message');
-				expect(hub.messages.warn[1].timestamp).to.be.above(middle);
+				expect(hub.messages.error[0]).to.have.property('message', 'Early message');
+				expect(hub.messages.error[0].timestamp).to.be.below(middle);
+				expect(hub.messages.error[1]).to.have.property('message', 'Late message');
+				expect(hub.messages.error[1].timestamp).to.be.above(middle);
 
 				hub.uninstall();
 				done();
