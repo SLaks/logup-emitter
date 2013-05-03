@@ -40,6 +40,9 @@ Hubs register themselves in the node `module` object as a `logup-hub` property.
 
 When an emitter is created, it walks up the `module.parent` tree until it finds a module with a `logup-hub` property.  It then calls the hub's `attach` method, passing the emitter object, to make the hub aware of the emitter.
 
+In environments where `module.parent` doesn't exist (eg, browserify), hubs register themselves in `global['logup-hub']`, and emitters will look there directly.  
+Note that loggers also use `module.parent` to help determine their package names, so metadata will be less reliable in such environments.
+
 ###Emitter -> hub invocation
 An emitter can send a message up to its hub by calling `hub.invoke(methodName, args)`.  `methodName` is the name of the method to invoke; `args` is the array of arguments to pass to the method.  
 `args` can contain arbitrary JSON-serializable objects / primitives.  
