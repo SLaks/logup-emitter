@@ -7,6 +7,51 @@ var expect = require('expect.js');
 var CollectingHub = require('./utils/CollectingHub');
 
 describe("Logger.source", function () {
+	if (!module.filename && !module.parent) {
+		describe("when module.filename or module.parent don't work", function () {
+			it("cannot find regular sources");
+
+			it("should create a dummy package", function () {
+				var logger = require('./fixtures/dummy-app');
+
+				expect(logger.source.filename).to.not.be.ok();
+				expect(logger.source.packageInfo).to.have.property('isDummy', true);
+				expect(logger.source.packageInfo.name).to.match(/^unknown-module/);
+			});
+
+			describe("when the two loggers are created for the same module", function () {
+				it("should use the same module name", function () {
+					var logger1 = require('./fixtures/export-emitter')();
+					var logger2 = require('./fixtures/export-emitter')();
+
+					expect(logger1.source.packageInfo.name).to.be(logger2.source.packageInfo.name);
+				});
+			});
+
+			describe("when the two loggers are created for different modules", function () {
+				it("should use the same module name", function () {
+					var logger1 = require('./fixtures/myapp/bin/run');
+					var logger2 = require('./fixtures/myapp/stuff');
+
+					expect(logger1.source.packageInfo.name).to.not.eql(logger2.source.packageInfo.name);
+				});
+			});
+
+			describe("when used in a subpackage", function () {
+				it("should make a named dummy package", function () {
+					var logger = require('./fixtures/package-wrapper');
+
+					expect(logger.source.filename).to.not.be.ok();
+					expect(logger.source.packageInfo).to.eql({
+						"name": "library",
+						"isDummy": true
+					});
+				});
+			});
+		});
+		return;
+	}
+
 	describe("when not in any module folder", function () {
 		it("should still find the containing package.json", function () {
 			var appPackage = {
@@ -70,11 +115,10 @@ describe("Logger.source", function () {
 		});
 	});
 
-
 	describe("when used in a subpackage", function () {
 		it("should find the package.json", function () {
 			var logger = require('./fixtures/package-wrapper');
-			expect(logger.filename).to.not.be.ok();
+			expect(logger.source.filename).to.not.be.ok();
 			expect(logger.source.packageInfo).to.eql({
 				"name": "library",
 				"version": "0.0.0",
