@@ -22,16 +22,23 @@ var CollectingHub = module.exports = function CollectingHub(minLevel) {
 /**
  * Installs this hub onto a module.
  */
-CollectingHub.prototype.install = function (module) {
-	this.module = module;
-	module['logup-hub'] = this;
+CollectingHub.prototype.install = function (targetModule) {
+	// Browserify doesn't support module.parent at
+	// all.  Check for that on our module, in case
+	// the caller's module is actually the root.
+	if (!module.parent) {
+		targetModule = global;
+	}
+
+	this.module = targetModule;
+	targetModule['logup-hub'] = this;
 };
 /**
  * Uninstalls this hub from the module it was installed on.
  */
 CollectingHub.prototype.uninstall = function () {
 	if (!this.module || this.module['logup-hub'] !== this)
-		throw new Error("Not installed");
+		throw new Error("This hub is not installed");
 	delete this.module['logup-hub'];
 	delete this.module;
 };
