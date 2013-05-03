@@ -42,12 +42,12 @@ CollectingHub.prototype.uninstall = function () {
 	if (!this.module || this.module['logup-hub'] !== this)
 		throw new Error("This hub is not installed");
 
-	delete this.module;
 	try {
 		delete this.module['logup-hub'];
 	} catch (e) {
 		this.module['logup-hub'] = void 0;	// Workaround for IE8 bug when deleting from window (if no module.parent)
 	}
+	delete this.module;
 };
 
 /**
