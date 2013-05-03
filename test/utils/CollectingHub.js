@@ -30,7 +30,7 @@ CollectingHub.prototype.install = function (targetModule) {
 		targetModule = global;
 	}
 
-	if ("logup-hub" in targetModule)
+	if (targetModule['logup-hub'] !== void 0)
 		throw new Error("Module " + targetModule.id + " already has a LogUp hub installed");
 	targetModule['logup-hub'] = this;
 	this.module = targetModule;
@@ -41,8 +41,13 @@ CollectingHub.prototype.install = function (targetModule) {
 CollectingHub.prototype.uninstall = function () {
 	if (!this.module || this.module['logup-hub'] !== this)
 		throw new Error("This hub is not installed");
-	delete this.module['logup-hub'];
+
 	delete this.module;
+	try {
+		delete this.module['logup-hub'];
+	} catch (e) {
+		this.module['logup-hub'] = void 0;	// Workaround for IE8 bug when deleting from window (if no module.parent)
+	}
 };
 
 /**
