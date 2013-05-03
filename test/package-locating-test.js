@@ -2,7 +2,8 @@
 /*global describe:false, it:false, mocha: false */
 "use strict";
 
-require("es5-shim/es5-sham");
+require("es5-shim");			// For Array.prototype.forEach()
+require("es5-shim/es5-sham");	// For Object.getOwnPropertyDescriptors()
 var expect = require('expect.js');
 
 var CollectingHub = require('./utils/CollectingHub');
