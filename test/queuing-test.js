@@ -125,6 +125,30 @@ describe("Logger", function () {
 					);
 				});
 			});
+
+			describe.skip("when an exception is thrown", function () {
+				it("should write logged messages to stderr on exit", function (done) {
+					testUtils.runProcess(
+						function () {
+							var logger1 = require('..').createLogger(module);
+							var logger2 = require('..').createLogger(module);
+							logger1.info("Line 1");
+							console.error("Line 2");
+							logger2.warn("Line 3");
+							throw new Error("Boom!");
+							logger1.info("After exit!");
+						},
+						function (err, stdout, stderr) {
+							console.log(stdout);
+							if (!err) return done(new Error("node process didn't exit with error code"));
+							expect(err.message).to.match(/Boom!/);
+							expect(stderr.toString()).to.match(/^.*Line 2\n.*Line 1\n.*Line 3\n.*Boom!/);
+							expect(stdout).to.be.empty();
+							done();
+						}
+					);
+				});
+			});
 		});
 	});
 
