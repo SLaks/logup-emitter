@@ -133,6 +133,28 @@ describe("Logger", function () {
 					);
 				});
 			});
+			describe("when loggers are created in both ticks", function () {
+				it("should write logged messages to stderr on exit", function (done) {
+					testUtils.runProcess(
+						function () {
+							var logger1 = require('..').createLogger(module);
+							logger1.info("Line 1");
+							console.error("Line 2");
+							process.nextTick(function () {
+								var logger2 = require('..').createLogger(module);
+								logger2.warn("Line 3");
+							});
+						},
+						function (err, stdout, stderr) {
+							if (err) return done(err);
+							expect(stdout).to.be.empty();
+							expect(stderr.toString()).to.match(/.*Line 2\n.*Line 1\n.*Line 3\n$/);
+							done();
+						}
+					);
+				});
+
+			});
 
 			// process.exit() doesn't flush pending IOs, so this appears to be
 			// impossible to test.  https://github.com/joyent/node/issues/3737
