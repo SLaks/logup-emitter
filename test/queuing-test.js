@@ -79,7 +79,38 @@ describe("Logger", function () {
 						}
 					);
 				});
+
+				describe("when there are multiple loggers", function () {
+					it("should write logged messages to stderr on exit", function (done) {
+						testUtils.runProcess(
+							function () {
+								var logger1 = require('..').createLogger(module);
+								var logger2 = require('..').createLogger(module);
+
+								for (var key in require.cache)	// Force all JS files to be reloaded.
+									if (require.cache.hasOwnProperty(key))
+										delete require.cache[key];
+
+								var logger3 = require('..').createLogger(module);
+								console.error(require.cache);
+								if (logger1.constructor === logger3.constructor)
+									throw new Error("Couldn't clear logup-emitter from module cache: " + require.resolve('..'));
+
+								logger1.info("Line 1");
+								logger2.error("Line 2");
+								logger3.warn("Line 3");
+							},
+							function (err, stdout, stderr) {
+								if (err) return done(err);
+								expect(stdout).to.be.empty();
+								expect(stderr.toString()).to.match(/.*Line 1\n.*Line 2\n.*Line 3\n$/);
+								done();
+							}
+						);
+					});
+				});
 			});
+
 			describe("when another tick occurs", function () {
 				it("should write logged messages to stderr after nextTick", function (done) {
 					testUtils.runProcess(
