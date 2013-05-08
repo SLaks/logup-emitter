@@ -158,7 +158,8 @@ describe("Logger", function () {
 
 			// process.exit() doesn't flush pending IOs, so this appears to be
 			// impossible to test.  https://github.com/joyent/node/issues/3737
-			describe.skip("when the process.exit is called", function () {
+			// If you run this code in a standalone process, it should output.
+			describe.skip("when process.exit is called", function () {
 				it("should write logged messages to stderr on exit", function (done) {
 					testUtils.runProcess(
 						function () {
@@ -179,8 +180,27 @@ describe("Logger", function () {
 				});
 			});
 
-			describe.skip("when an exception is thrown", function () {
-				it("should write logged messages to stderr on exit", function (done) {
+			describe("when an exception is thrown", function () {
+				it("should still write the exception to stderr", function (done) {
+					testUtils.runProcess(
+						function () {
+							var logger1 = require('..').createLogger(module);
+							var logger2 = require('..').createLogger(module);
+							console.log("Line 1");
+							console.error("Line 2");
+							throw new Error("Boom!");
+						},
+						function (err, stdout, stderr) {
+							if (!err) return done(new Error("node process didn't exit with error code"));
+							expect(err.message).to.match(/Boom!/);
+							expect(stderr.toString()).to.match(/^.*Line 2\n[\S\s]*Boom!/);
+							expect(stdout).to.be("Line 1\n");
+							done();
+						}
+					);
+				});
+				/// Again, IOs are not flushed, so I can't test this.
+				it.skip("should write logged messages to stderr on exit", function (done) {
 					testUtils.runProcess(
 						function () {
 							var logger1 = require('..').createLogger(module);
@@ -192,7 +212,6 @@ describe("Logger", function () {
 							logger1.info("After exit!");
 						},
 						function (err, stdout, stderr) {
-							console.log(stdout);
 							if (!err) return done(new Error("node process didn't exit with error code"));
 							expect(err.message).to.match(/Boom!/);
 							expect(stderr.toString()).to.match(/^.*Line 2\n.*Line 1\n.*Line 3\n.*Boom!/);
