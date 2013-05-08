@@ -9,8 +9,15 @@ var expect = require('expect.js');
 var CollectingHub = require('./utils/CollectingHub');
 
 describe("Logger.source", function () {
-	if (!module.filename && !module.parent) {
-		describe("when module.filename or module.parent don't work", function () {
+	var supportsFilenames = !!module.filename;
+	var supportsHierarchy = !!supportsFilenames;
+
+	var supportsAllPackages = true;
+	var lazyRequire = require;	// Fool browserify / detective
+	try { lazyRequire('./fixtures/myapp/package'); } catch (e) { supportsAllPackages = false; }
+
+	if (!supportsFilenames && !supportsHierarchy) {
+		describe("when supportsFilenames or module.parent don't work", function () {
 			it("cannot find regular sources");
 
 			it("should create a dummy package", function () {
@@ -54,6 +61,24 @@ describe("Logger.source", function () {
 		return;
 	}
 
+	if (!supportsAllPackages)
+		it("cannot read full package information");
+	if (!supportsFilenames)
+		it("cannot find package names");
+
+	function expectPackage(logger, expected) {
+		if (!supportsFilenames) {
+			expect(logger.source.packageInfo).to.have.property("isDummy", true);
+			expect(logger.source.packageInfo.name).to.match(/^unknown-package-\d+$/);
+			return;
+		}
+
+		if (!supportsAllPackages)
+			expected = { name: expected.name, isDummy: true };
+
+		expect(logger.source.packageInfo).to.eql(expected);
+	}
+
 	describe("when not in any module folder", function () {
 		it("should still find the containing package.json", function () {
 			var appPackage = {
@@ -62,19 +87,19 @@ describe("Logger.source", function () {
 			};
 
 			var logger = require('./fixtures/myapp/bin/run');
-			expect(logger.source.filename).to.contain("run.js");
-			expect(logger.source.packageInfo).to.eql(appPackage);
+			supportsFilenames && expect(logger.source.filename).to.contain("run.js");
+			expectPackage(logger, appPackage);
 
 			logger = require('./fixtures/myapp/stuff');
-			expect(logger.source.filename).to.contain("stuff.js");
-			expect(logger.source.packageInfo).to.eql(appPackage);
+			supportsFilenames && expect(logger.source.filename).to.contain("stuff.js");
+			expectPackage(logger, appPackage);
 		});
 		describe("when the package has been stripped by browserify", function () {
 			it("should find the package.json and add a dummy name", function () {
 				var logger = require('./fixtures/dummy-app');
 
-				expect(logger.source.filename).to.contain("run.js");
-				expect(logger.source.packageInfo).to.eql({
+				supportsFilenames && expect(logger.source.filename).to.contain("run.js");
+				expectPackage(logger, {
 					"name": "dummy-app",
 					"isDummy": true,
 					"main": "bin/run.js"
@@ -85,8 +110,9 @@ describe("Logger.source", function () {
 	describe("when in a node_module", function () {
 		it("should find the package.json", function () {
 			var logger = require('./fixtures/node_modules/library');
-			expect(logger.source.filename).to.contain("index.js");
-			expect(logger.source.packageInfo).to.eql({
+
+			supportsFilenames && expect(logger.source.filename).to.contain("index.js");
+			expectPackage(logger, {
 				"name": "library",
 				"version": "0.0.0",
 				"main": "lib/index.js"
@@ -96,8 +122,8 @@ describe("Logger.source", function () {
 			it("should find the package.json and add a dummy name", function () {
 				var logger = require('./fixtures/node_modules/dummy');
 
-				expect(logger.source.filename).to.contain("index.js");
-				expect(logger.source.packageInfo).to.eql({
+				supportsFilenames && expect(logger.source.filename).to.contain("index.js");
+				expectPackage(logger, {
 					"name": "dummy",
 					"isDummy": true,
 					"main": "lib/index.js"
@@ -108,8 +134,9 @@ describe("Logger.source", function () {
 	describe("when in a nested node_module", function () {
 		it("should find the package.json for the inner module", function () {
 			var logger = require('./fixtures/node_modules/library/node_modules/common');
-			expect(logger.source.filename).to.contain("utils.js");
-			expect(logger.source.packageInfo).to.eql({
+
+			supportsFilenames && expect(logger.source.filename).to.contain("utils.js");
+			expectPackage(logger, {
 				"name": "common",
 				"version": "0.0.0",
 				"main": "utils.js"
@@ -120,8 +147,9 @@ describe("Logger.source", function () {
 	describe("when used in a subpackage", function () {
 		it("should find the package.json", function () {
 			var logger = require('./fixtures/package-wrapper');
+
 			expect(logger.source.filename).to.not.be.ok();
-			expect(logger.source.packageInfo).to.eql({
+			expectPackage(logger, {
 				"name": "library",
 				"version": "0.0.0",
 				"main": "lib/index.js"
