@@ -80,6 +80,11 @@ describe("Logger.source", function () {
 	}
 
 	describe("when not in any module folder", function () {
+		if (!supportsAllPackages) {
+			// These tests were designed for Browserify v1
+			it("cannot accurately find package root without cooperation from browserify");
+			return;
+		}
 		it("should still find the containing package.json", function () {
 			var appPackage = {
 				"name": "myapp",
