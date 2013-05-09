@@ -12,7 +12,9 @@ var testUtils = require('./utils');
  * Creates a new logger on a module loaded by the current module.
  */
 function getChildLogger() {
-	return require('./fixtures/export-emitter')();
+	// I need a separate exporting file for each test
+	// file, since module.parent is only set once.
+	return require('./fixtures/export-emitter-queuing')();
 }
 
 describe("Logger", function () {

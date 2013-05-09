@@ -30,8 +30,8 @@ describe("Logger.source", function () {
 
 			describe("when the two loggers are created for the same module", function () {
 				it("should use the same module name", function () {
-					var logger1 = require('./fixtures/export-emitter')();
-					var logger2 = require('./fixtures/export-emitter')();
+					var logger1 = require('./fixtures/export-emitter-locating')();
+					var logger2 = require('./fixtures/export-emitter-locating')();
 
 					expect(logger1.source.packageInfo.name).to.be(logger2.source.packageInfo.name);
 				});
