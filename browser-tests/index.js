@@ -12,7 +12,7 @@ var port = 56487; //logup + 0
 var testDir = path.dirname(__dirname) + "/test";
 var testFiles = fs.readdirSync(testDir)
 	.filter(RegExp.prototype.test.bind(/\btests?\b/))
-	.map(path.join.bind(path, testDir));
+	.map(function (name) { return path.join(testDir, name); });
 
 app.get('/', function (req, res) { return res.sendfile(__dirname + "/run-tests.html"); });
 app.get('/js/mocha.js', function (req, res) { return res.sendfile(require.resolve('mocha/mocha')); });

@@ -40,6 +40,8 @@
     "expect.js": "~0.2.0",
     "es5-shim": "~2.0.8",
     "browserify-middleware": "~1.9.0",
+    "browserify": "git://github.com/SLaks/node-browserify.git#include-filenames",
+    "browser-pack": "git://github.com/SLaks/browser-pack.git#full-module-api",
     "express": "~3.2.3"
   }
 }
