@@ -193,10 +193,10 @@ describe("Logger", function () {
 							throw new Error("Boom!");
 						},
 						function (err, stdout, stderr) {
-							if (!err) return done(new Error("node process didn't exit with error code"));
-							expect(err.message).to.match(/Boom!/);
 							expect(stderr.toString()).to.match(/^.*Line 2\n[\S\s]*Boom!/);
 							expect(stdout).to.be("Line 1\n");
+							if (!err) return done(new Error("node process didn't exit with error code"));
+							expect(err.message).to.match(/Boom!/);
 							done();
 						}
 					);
