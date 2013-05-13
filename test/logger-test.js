@@ -6,6 +6,16 @@ require("es5-shim");			// For Array.prototype.forEach()
 require("es5-shim/es5-sham");	// For Object.getOwnPropertyDescriptors()
 var expect = require('expect.js');
 
+var testUtils = require('./utils');
+
+/**
+ * Creates a new logger on a module loaded by the current module.
+ */
+function getChildLogger() {
+	// I need a separate exporting file for each test
+	// file, since module.parent is only set once.
+	return require('./fixtures/export-emitter-logger')();
+}
 
 describe('Logger', function () {
 	describe('.describe', function () {
@@ -33,6 +43,30 @@ describe('Logger', function () {
 			expect(
 				logger.describe.bind(logger, "filename", __filename)
 			).to.throwException();
+		});
+	});
+	describe(".log", function () {
+		it("should pass undefined if no third argument", function () {
+			var hub = new testUtils.CollectingHub('info');
+			hub.install(module);
+			var logger = getChildLogger();
+
+			logger.info("Hi!");
+
+			expect(hub.messages.info[0].data).to.be(undefined);
+
+			hub.uninstall();
+		});
+		it("should combine extra data arguments into an array", function () {
+			var hub = new testUtils.CollectingHub('info');
+			hub.install(module);
+			var logger = getChildLogger();
+
+			logger.info("Hi!", 1, 2);
+
+			expect(hub.messages.info[0].data).to.eql([1, 2, ]);
+
+			hub.uninstall();
 		});
 	});
 });
